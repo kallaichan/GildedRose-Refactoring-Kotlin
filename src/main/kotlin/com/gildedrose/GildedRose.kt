@@ -1,52 +1,58 @@
 package com.gildedrose
 
-private const val AGED_BRIE = "Aged Brie"
-private const val BACKSTAGE_PASS = "Backstage pass"
-private const val SULFURAS = "Sulfuras"
-
 class GildedRose(var items: Array<Item>) {
 
     fun updateQuality() {
         items.forEach { item ->
-            updateQualityOfIndividualItems(item)
+            item.updateIndividualItem()
         }
     }
 
-    private fun updateQualityOfIndividualItems(item: Item) {
-        if (item.isSulfuras()) {
-            return
-        }
+    private fun Item.updateIndividualItem() {
+        if (isSulfuras()) return
+        if (isAgedBrie()) return updateAgedBrie()
+        if (isBackstagePass()) return updateBackstagePass()
 
-        if (item.isAgedBrie()) {
-            item.incrementQualityBy(2)
-            decrementSellIn(item)
-            return
-        }
+        updateNormalItem()
+    }
 
-        if (item.isBackstagePass()) {
-            item.incrementQualityBy(1)
-            if (item.sellIn < 11) {
-                item.incrementQualityBy(1)
-            }
-            if (item.sellIn < 6) {
-                item.incrementQualityBy(1)
-            }
-            if (item.sellIn < 0) {
-                item.quality = 0
-            }
-            return
-        }
+    private fun Item.isSulfuras() = name.contains(ItemType().SULFURAS, ignoreCase = true)
 
-        decrementQuality(item)
-        decrementSellIn(item)
+    private fun Item.isAgedBrie() = name == ItemType().AGED_BRIE
 
-        if (item.sellIn < 0) {
-            decrementQuality(item)
+    private fun Item.updateAgedBrie() {
+        decrementSellIn()
+        incrementQualityBy(2)
+    }
+
+    private fun Item.isBackstagePass() = name.contains(ItemType().BACKSTAGE_PASS, ignoreCase = true)
+
+    private fun Item.updateBackstagePass() {
+        when (sellIn) {
+            in Int.MIN_VALUE .. -1 -> quality = 0
+            in 0..5 -> incrementQualityBy(3)
+            in 6..10 -> incrementQualityBy(2)
+            else -> incrementQualityBy(1)
         }
     }
 
-    private fun decrementSellIn(item: Item) {
-        item.sellIn--
+    private class ItemType {
+        val AGED_BRIE = "Aged Brie"
+        val BACKSTAGE_PASS = "Backstage pass"
+        val SULFURAS = "Sulfuras"
+    }
+
+    private fun Item.updateNormalItem() {
+        decrementSellIn()
+        if (sellIn < 0) {
+            decrementQualityBy(2)
+        } else {
+            decrementQualityBy(1)
+        }
+    }
+
+    private fun Item.decrementSellIn() {
+        sellIn--
     }
 
     private fun Item.incrementQualityBy(delta: Int) {
@@ -54,17 +60,9 @@ class GildedRose(var items: Array<Item>) {
         quality = quality.coerceAtMost(50)
     }
 
-    private fun decrementQuality(item: Item) {
-        if (item.quality > 0) {
-            item.quality--
-        }
+    private fun Item.decrementQualityBy(delta: Int) {
+        quality -= delta
+        quality = quality.coerceAtLeast(0)
     }
-
-    private fun Item.isSulfuras() = name.contains(SULFURAS, ignoreCase = true)
-
-    private fun Item.isBackstagePass() = name.contains(BACKSTAGE_PASS, ignoreCase = true)
-
-    private fun Item.isAgedBrie() = name == AGED_BRIE
-
 }
 
