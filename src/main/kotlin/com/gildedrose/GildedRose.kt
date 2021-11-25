@@ -20,12 +20,18 @@ class GildedRose(var items: Array<Item>) {
 
     private fun Item.isAgedBrie() = name == ItemType().AGED_BRIE
 
+    private fun Item.isBackstagePass() = name.contains(ItemType().BACKSTAGE_PASS, ignoreCase = true)
+
+    private class ItemType {
+        val AGED_BRIE = "Aged Brie"
+        val BACKSTAGE_PASS = "Backstage pass"
+        val SULFURAS = "Sulfuras"
+    }
+
     private fun Item.updateAgedBrie() {
         decrementSellIn()
         incrementQualityBy(2)
     }
-
-    private fun Item.isBackstagePass() = name.contains(ItemType().BACKSTAGE_PASS, ignoreCase = true)
 
     private fun Item.updateBackstagePass() {
         when (sellIn) {
@@ -34,12 +40,6 @@ class GildedRose(var items: Array<Item>) {
             in 6..10 -> incrementQualityBy(2)
             else -> incrementQualityBy(1)
         }
-    }
-
-    private class ItemType {
-        val AGED_BRIE = "Aged Brie"
-        val BACKSTAGE_PASS = "Backstage pass"
-        val SULFURAS = "Sulfuras"
     }
 
     private fun Item.updateNormalItem() {
