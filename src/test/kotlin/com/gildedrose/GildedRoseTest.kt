@@ -94,6 +94,14 @@ internal class GildedRoseTest {
     }
 
     @Test
+    fun `Conjured items degrade in Quality twice as fast as normal items`() {
+        val items = arrayOf(Item("Conjured Mana Cake", 5, 10))
+        val app = GildedRose(items)
+        app.updateQuality()
+        assertEquals(8, app.items[0].quality)
+    }
+
+    @Test
     fun `Get Item String`() {
         val item = Item("Backstage passes to a TAFKAL80ETC concert", -1, 10)
         assertEquals("Backstage passes to a TAFKAL80ETC concert, -1, 10", item.toString())
